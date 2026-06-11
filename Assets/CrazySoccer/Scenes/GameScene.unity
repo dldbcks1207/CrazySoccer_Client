@@ -415,24 +415,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.5, y: 0.71419805}
   m_EdgeRadius: 0
---- !u!114 &375139702
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 375139697}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f67d9234024f2e44890c36c393eaf9ca, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  moveSpeed: 5
-  jumpForce: 5
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  jumpBufferTime: 0.2
 --- !u!1 &437862910
 GameObject:
   m_ObjectHideFlags: 0
@@ -1607,9 +1589,6 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 3171142643588537289, guid: 296f48fc04d743e4cb06f763b4ae8caa, type: 3}
-      insertIndex: 1
-      addedObject: {fileID: 375139702}
     - targetCorrespondingSourceObject: {fileID: 3171142643588537289, guid: 296f48fc04d743e4cb06f763b4ae8caa, type: 3}
       insertIndex: -1
       addedObject: {fileID: 375139701}
