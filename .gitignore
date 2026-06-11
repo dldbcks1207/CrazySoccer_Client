@@ -106,4 +106,5 @@ InitTestScene*.unity*
 /[Aa]ssets/[Ss]ceneDependencyCache*
 
 # Ignore mklink
+/[Aa]ssets/CrazySoccer/Scripts/SharedNetwork.meta
 /[Aa]ssets/CrazySoccer/Scripts/SharedNetwork/
