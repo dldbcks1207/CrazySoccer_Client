@@ -15,6 +15,8 @@ public class ClientNetwork : MonoBehaviour
     [SerializeField] private Transform player;
     [SerializeField] private Transform soccerBall;
     private ConcurrentQueue<Action> mainThreadQueue = new ConcurrentQueue<Action>();
+    private Vector3 lastSoccerBallPosition;
+    [SerializeField] private float ballRotationSpeed = 200f;
 
     void Awake()
     {
@@ -95,7 +97,13 @@ public class ClientNetwork : MonoBehaviour
         }
 
         player.position = Vector2.Lerp(player.transform.position, playerTargetPosition, Time.deltaTime * lerpSpeed);
+        Vector3 ballPrevPos = soccerBall.position;
         soccerBall.position = Vector2.Lerp(soccerBall.transform.position, soccerBallTargetPosition, Time.deltaTime * lerpSpeed);
+
+        float moveDeltaX = soccerBall.position.x - ballPrevPos.x;
+        float rotationAmount = moveDeltaX * ballRotationSpeed;
+        soccerBall.Rotate(Vector3.forward, -rotationAmount);
+        
         if (socket == null || !socket.Connected) return;
 
         float currentHorizontal = inputActions.Player.Move.ReadValue<Vector2>().x;
