@@ -30,13 +30,12 @@ public class ClientNetwork : MonoBehaviour
 
     void Start()
     {
-        socket = new TcpClient();
-
         packetHandlers.Add(PacketType.SyncPosition, HandleSyncPosition);
         packetHandlers.Add(PacketType.GoalEvent, HandleGoalEvent);
 
+        socket = new TcpClient();
         Debug.Log("서버 연걸 시도");
-        socket.BeginConnect("127.0.0.1", 9000, (ar) =>
+        socket.BeginConnect("127.0.0.1", NetworkConfig.ServerPort, (ar) =>
         {
             socket.EndConnect(ar);
             networkStream = socket.GetStream();
@@ -49,8 +48,7 @@ public class ClientNetwork : MonoBehaviour
         if (socket == null || !socket.Connected) return;
 
         NetworkStream stream = networkStream;
-        byte[] headerBuffer = new byte[4];
-        //stream.BeginRead(buffer, 0, buffer.Length, OnReadComplete, new object[] { stream, buffer });
+        byte[] headerBuffer = new byte[NetworkConfig.HeaderSize];
         stream.BeginRead(headerBuffer, 0, headerBuffer.Length, OnReadHeader, headerBuffer);
     }
 
