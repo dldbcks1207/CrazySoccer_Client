@@ -4,6 +4,7 @@ using System.Text;
 using System;
 using System.Collections.Concurrent;
 using System.IO;
+using System.Collections.Generic;
 
 public class ClientNetwork : MonoBehaviour
 {
@@ -20,6 +21,8 @@ public class ClientNetwork : MonoBehaviour
     private Vector3 lastSoccerBallPosition;
     [SerializeField] private float ballRotationSpeed = 200f;
 
+    private Dictionary<PacketType, Action<BinaryReader>> packetHandlers = new Dictionary<PacketType, Action<BinaryReader>>();
+
     void Awake()
     {
         inputActions = new InputSystem_Actions();
@@ -28,6 +31,10 @@ public class ClientNetwork : MonoBehaviour
     void Start()
     {
         socket = new TcpClient();
+
+        packetHandlers.Add(PacketType.SyncPosition, HandleSyncPosition);
+        packetHandlers.Add(PacketType.GoalEvent, HandleGoalEvent);
+
         Debug.Log("서버 연걸 시도");
         socket.BeginConnect("127.0.0.1", 9000, (ar) =>
         {
@@ -35,16 +42,6 @@ public class ClientNetwork : MonoBehaviour
             networkStream = socket.GetStream();
             ReceiveLoop();
         }, null);
-    }
-
-    void OnEnable()
-    {
-        inputActions.Enable();
-    }
-
-    void OnDisable()
-    {
-        inputActions.Disable();
     }
 
     private void ReceiveLoop()
@@ -92,26 +89,13 @@ public class ClientNetwork : MonoBehaviour
             using (MemoryStream ms = new MemoryStream(bodyBuffer))
             using (BinaryReader br = new BinaryReader(ms))
             {
-                switch (packetType)
+                if (packetHandlers.TryGetValue(packetType, out var handler))
                 {
-                    case PacketType.SyncPosition:
-                        float playerX = br.ReadSingle(); float playerY = br.ReadSingle();
-                        float ballX = br.ReadSingle(); float ballY = br.ReadSingle();
-
-                        mainThreadQueue.Enqueue(() =>
-                        {
-                            playerTargetPosition = new Vector2(playerX, playerY);
-                            soccerBallTargetPosition = new Vector2(ballX, ballY);
-                        });
-                        break;
-                    case PacketType.GoalEvent:
-                        short scoredTeam = br.ReadInt16();
-
-                        mainThreadQueue.Enqueue(() =>
-                        {
-                            Debug.Log($"Goal {scoredTeam}");
-                        });
-                        break;
+                    handler.Invoke(br);
+                }
+                else
+                {
+                    Debug.LogError($"{packetType}은 등록되지 않음");
                 }
             }
 
@@ -119,38 +103,28 @@ public class ClientNetwork : MonoBehaviour
         }
         catch (Exception ex) { Debug.LogError($"Error: {ex.Message}"); }
     }
-    /*
-    private void OnReadComplete(IAsyncResult ar)
+
+    private void HandleSyncPosition(BinaryReader br)
     {
-        object[] state = (object[])ar.AsyncState;
-        NetworkStream stream = (NetworkStream)state[0];
-        byte[] buffer = (byte[])state[1];
+        float playerX = br.ReadSingle(); float playerY = br.ReadSingle();
+        float ballX = br.ReadSingle(); float ballY = br.ReadSingle();
 
-        try
+        mainThreadQueue.Enqueue(() =>
         {
-            int bytesRead = stream.EndRead(ar);
-            if (bytesRead == 0) return;
-
-            SyncPacket receivedPacket = SyncPacket.Deserialize(buffer);
-
-            switch (receivedPacket.Type)
-            {
-                case PacketType.SyncPosition:
-                    mainThreadQueue.Enqueue(() =>
-                    {
-                        playerTargetPosition = new Vector2(receivedPacket.PlayerX, receivedPacket.PlayerY);
-                        soccerBallTargetPosition = new Vector2(receivedPacket.BallX, receivedPacket.BallY);
-                    });
-                    break;
-            }
-            stream.BeginRead(buffer, 0, buffer.Length, OnReadComplete, state);
-        }
-        catch (Exception ex)
-        {
-            Debug.Log($"Error: {ex.Message}");
-        }
+            playerTargetPosition = new Vector2(playerX, playerY);
+            soccerBallTargetPosition = new Vector2(ballX, ballY);
+        });
     }
-    */
+
+    private void HandleGoalEvent(BinaryReader br)
+    {
+        short scoredTeam = br.ReadInt16();
+
+        mainThreadQueue.Enqueue(() =>
+        {
+            Debug.Log($"Goal {scoredTeam}");
+        });
+    }
 
     void Update()
     {
@@ -185,6 +159,17 @@ public class ClientNetwork : MonoBehaviour
             lastSentHorizontal = currentHorizontal;
         }
     }
+
+    void OnEnable()
+    {
+        inputActions.Enable();
+    }
+
+    void OnDisable()
+    {
+        inputActions.Disable();
+    }
+
     void OnApplicationQuit()
     {
         socket?.Close();
