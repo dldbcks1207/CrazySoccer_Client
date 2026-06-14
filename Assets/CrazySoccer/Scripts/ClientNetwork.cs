@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Collections.Generic;
+using TMPro;
 
 public class ClientNetwork : MonoBehaviour
 {
@@ -20,7 +21,9 @@ public class ClientNetwork : MonoBehaviour
     private ConcurrentQueue<Action> mainThreadQueue = new ConcurrentQueue<Action>();
     private Vector3 lastSoccerBallPosition;
     [SerializeField] private float ballRotationSpeed = 200f;
-
+    private int leftScore = 0;
+    private int rightScore = 0;
+    [SerializeField] private TextMeshProUGUI scoreText;
     private Dictionary<PacketType, Action<BinaryReader>> packetHandlers = new Dictionary<PacketType, Action<BinaryReader>>();
 
     void Awake()
@@ -120,7 +123,16 @@ public class ClientNetwork : MonoBehaviour
 
         mainThreadQueue.Enqueue(() =>
         {
-            Debug.Log($"Goal {scoredTeam}");
+            if (scoredTeam == 1)
+            {
+                leftScore++;
+                scoreText.text = $"{leftScore} : {rightScore}";
+            }
+            else if (scoredTeam == 2)
+            {
+                rightScore++;
+                scoreText.text = $"{leftScore} : {rightScore}";
+            }
         });
     }
 
