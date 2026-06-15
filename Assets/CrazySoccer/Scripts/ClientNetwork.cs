@@ -4,6 +4,8 @@ using System.Text;
 using System;
 using System.Collections.Concurrent;
 using System.IO;
+using System.Collections.Generic;
+using TMPro;
 
 public class ClientNetwork : MonoBehaviour
 {
@@ -19,6 +21,10 @@ public class ClientNetwork : MonoBehaviour
     private ConcurrentQueue<Action> mainThreadQueue = new ConcurrentQueue<Action>();
     private Vector3 lastSoccerBallPosition;
     [SerializeField] private float ballRotationSpeed = 200f;
+    private int leftScore = 0;
+    private int rightScore = 0;
+    [SerializeField] private TextMeshProUGUI scoreText;
+    private Dictionary<PacketType, Action<BinaryReader>> packetHandlers = new Dictionary<PacketType, Action<BinaryReader>>();
 
     void Awake()
     {
@@ -27,9 +33,12 @@ public class ClientNetwork : MonoBehaviour
 
     void Start()
     {
+        packetHandlers.Add(PacketType.SyncPosition, HandleSyncPosition);
+        packetHandlers.Add(PacketType.GoalEvent, HandleGoalEvent);
+
         socket = new TcpClient();
         Debug.Log("서버 연걸 시도");
-        socket.BeginConnect("127.0.0.1", 9000, (ar) =>
+        socket.BeginConnect("127.0.0.1", NetworkConfig.ServerPort, (ar) =>
         {
             socket.EndConnect(ar);
             networkStream = socket.GetStream();
@@ -37,23 +46,12 @@ public class ClientNetwork : MonoBehaviour
         }, null);
     }
 
-    void OnEnable()
-    {
-        inputActions.Enable();
-    }
-
-    void OnDisable()
-    {
-        inputActions.Disable();
-    }
-
     private void ReceiveLoop()
     {
         if (socket == null || !socket.Connected) return;
 
         NetworkStream stream = networkStream;
-        byte[] headerBuffer = new byte[4];
-        //stream.BeginRead(buffer, 0, buffer.Length, OnReadComplete, new object[] { stream, buffer });
+        byte[] headerBuffer = new byte[NetworkConfig.HeaderSize];
         stream.BeginRead(headerBuffer, 0, headerBuffer.Length, OnReadHeader, headerBuffer);
     }
 
@@ -70,7 +68,7 @@ public class ClientNetwork : MonoBehaviour
             short packetSize = BitConverter.ToInt16(headerBuffer, 0);
             PacketType packetType = (PacketType)BitConverter.ToInt16(headerBuffer, 2);
 
-            byte[] bodyBuffer = new byte[packetSize - 4];
+            byte[] bodyBuffer = new byte[packetSize - NetworkConfig.HeaderSize];
 
             stream.BeginRead(bodyBuffer, 0, bodyBuffer.Length, OnReadBody, new object[] { bodyBuffer, packetType });
         }
@@ -92,26 +90,13 @@ public class ClientNetwork : MonoBehaviour
             using (MemoryStream ms = new MemoryStream(bodyBuffer))
             using (BinaryReader br = new BinaryReader(ms))
             {
-                switch (packetType)
+                if (packetHandlers.TryGetValue(packetType, out var handler))
                 {
-                    case PacketType.SyncPosition:
-                        float playerX = br.ReadSingle(); float playerY = br.ReadSingle();
-                        float ballX = br.ReadSingle(); float ballY = br.ReadSingle();
-
-                        mainThreadQueue.Enqueue(() =>
-                        {
-                            playerTargetPosition = new Vector2(playerX, playerY);
-                            soccerBallTargetPosition = new Vector2(ballX, ballY);
-                        });
-                        break;
-                    case PacketType.GoalEvent:
-                        short scoredTeam = br.ReadInt16();
-
-                        mainThreadQueue.Enqueue(() =>
-                        {
-                            Debug.Log($"Goal {scoredTeam}");
-                        });
-                        break;
+                    handler.Invoke(br);
+                }
+                else
+                {
+                    Debug.LogError($"{packetType}은 등록되지 않음");
                 }
             }
 
@@ -119,38 +104,37 @@ public class ClientNetwork : MonoBehaviour
         }
         catch (Exception ex) { Debug.LogError($"Error: {ex.Message}"); }
     }
-    /*
-    private void OnReadComplete(IAsyncResult ar)
+
+    private void HandleSyncPosition(BinaryReader br)
     {
-        object[] state = (object[])ar.AsyncState;
-        NetworkStream stream = (NetworkStream)state[0];
-        byte[] buffer = (byte[])state[1];
+        float playerX = br.ReadSingle(); float playerY = br.ReadSingle();
+        float ballX = br.ReadSingle(); float ballY = br.ReadSingle();
 
-        try
+        mainThreadQueue.Enqueue(() =>
         {
-            int bytesRead = stream.EndRead(ar);
-            if (bytesRead == 0) return;
-
-            SyncPacket receivedPacket = SyncPacket.Deserialize(buffer);
-
-            switch (receivedPacket.Type)
-            {
-                case PacketType.SyncPosition:
-                    mainThreadQueue.Enqueue(() =>
-                    {
-                        playerTargetPosition = new Vector2(receivedPacket.PlayerX, receivedPacket.PlayerY);
-                        soccerBallTargetPosition = new Vector2(receivedPacket.BallX, receivedPacket.BallY);
-                    });
-                    break;
-            }
-            stream.BeginRead(buffer, 0, buffer.Length, OnReadComplete, state);
-        }
-        catch (Exception ex)
-        {
-            Debug.Log($"Error: {ex.Message}");
-        }
+            playerTargetPosition = new Vector2(playerX, playerY);
+            soccerBallTargetPosition = new Vector2(ballX, ballY);
+        });
     }
-    */
+
+    private void HandleGoalEvent(BinaryReader br)
+    {
+        short scoredTeam = br.ReadInt16();
+
+        mainThreadQueue.Enqueue(() =>
+        {
+            if (scoredTeam == 1)
+            {
+                leftScore++;
+                scoreText.text = $"{leftScore} : {rightScore}";
+            }
+            else if (scoredTeam == 2)
+            {
+                rightScore++;
+                scoreText.text = $"{leftScore} : {rightScore}";
+            }
+        });
+    }
 
     void Update()
     {
@@ -185,6 +169,17 @@ public class ClientNetwork : MonoBehaviour
             lastSentHorizontal = currentHorizontal;
         }
     }
+
+    void OnEnable()
+    {
+        inputActions.Enable();
+    }
+
+    void OnDisable()
+    {
+        inputActions.Disable();
+    }
+
     void OnApplicationQuit()
     {
         socket?.Close();
