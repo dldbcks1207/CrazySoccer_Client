@@ -33,7 +33,7 @@ public class ClientNetwork : MonoBehaviour
 
     void Start()
     {
-        packetHandlers.Add(PacketType.SyncPosition, HandleSyncPosition);
+        //packetHandlers.Add(PacketType.SyncPosition, HandleSyncPosition);
         packetHandlers.Add(PacketType.GoalEvent, HandleGoalEvent);
 
         socket = new TcpClient();
