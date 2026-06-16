@@ -59,6 +59,9 @@ TagManager:
   - name: GoalPostFront
     uniqueID: 249012161
     locked: 0
+  - name: ShootGauge
+    uniqueID: 2866670799
+    locked: 0
   - name: Logo
     uniqueID: 1331875703
     locked: 0

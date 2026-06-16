@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: abaa885930aa9bf4ab33943ff6eb20c6
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 133992
+  packageName: UI Gradient
+  packageVersion: 1.0
+  assetPath: Assets/UIGradient/Scripts/Vector2Extension.cs
+  uploadId: 306889

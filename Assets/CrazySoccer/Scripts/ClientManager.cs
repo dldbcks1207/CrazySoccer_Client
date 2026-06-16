@@ -25,7 +25,7 @@ public class ClientManager : MonoBehaviour
         packetHandlers.Add(PacketType.NewSessionConnect, GameManager.Instance.HandleNewSessionConnect);
         packetHandlers.Add(PacketType.SyncWorld, GameManager.Instance.HandleSyncWorld);
         packetHandlers.Add(PacketType.GoalEvent, GameManager.Instance.HandleGoalEvent);
-        
+
         playerSession.Client = new TcpClient();
         Debug.Log("Try Server Connect..");
         playerSession.Client.BeginConnect("127.0.0.1", NetworkConfig.ServerPort, (ar) =>
@@ -64,8 +64,26 @@ public class ClientManager : MonoBehaviour
             short packetSize = BitConverter.ToInt16(headerBuffer, 0);
             PacketType packetType = (PacketType)BitConverter.ToInt16(headerBuffer, 2);
 
-            byte[] bodyBuffer = new byte[packetSize - NetworkConfig.HeaderSize];
-            networkStream.BeginRead(bodyBuffer, 0, bodyBuffer.Length, OnReadBody, new object[] { bodyBuffer, packetType });
+            int bodyLength = packetSize - NetworkConfig.HeaderSize;
+
+            if (bodyLength > 0)
+            {
+                byte[] bodyBuffer = new byte[bodyLength];
+                networkStream.BeginRead(bodyBuffer, 0, bodyBuffer.Length, OnReadBody, new object[] { bodyBuffer, packetType });
+            }
+            else
+            {
+                byte[] emptyBuffer = new byte[0];
+                using (MemoryStream ms = new MemoryStream(emptyBuffer))
+                using (BinaryReader br = new BinaryReader(ms))
+                {
+                    if (packetHandlers.TryGetValue(packetType, out var handler))
+                    {
+                        handler.Invoke(br);
+                    }
+                }
+                ReceiveLoop();
+            }
         }
         catch (Exception ex) { Debug.LogError($"헤더 수신 에러: {ex.Message}"); }
     }

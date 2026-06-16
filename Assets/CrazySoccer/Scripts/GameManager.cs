@@ -133,10 +133,16 @@ public class GameManager : MonoBehaviour
             myInput.IsJump = currentJump;
 
             byte[] packetBytes = myInput.Serialize();
-            NetworkStream stream = ClientManager.Instance.networkStream;
-            stream.Write(packetBytes, 0, packetBytes.Length);
+            ClientManager.Instance.networkStream.Write(packetBytes, 0, packetBytes.Length);
 
             lastSentHorizontal = currentHorizontal;
+        }
+
+        if (inputActions.Player.Kick.WasPressedThisFrame())
+        {
+            KickPacket kickPacket = new KickPacket();
+            byte[] packetBytes = kickPacket.Serialize();
+            ClientManager.Instance.networkStream.Write(packetBytes, 0, packetBytes.Length);
         }
     }
 }
