@@ -8,7 +8,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
     public PlayerObject playerObjectPrefab;
-
+    [SerializeField] private CameraMoveScript cameraMoveScript;
     [SerializeField] private SoccerBallObject soccerBall;
     Dictionary<ushort, PlayerObject> playerObjects = new Dictionary<ushort, PlayerObject>();
     private InputSystem_Actions inputActions;
@@ -39,6 +39,8 @@ public class GameManager : MonoBehaviour
                 PlayerObject playerObj = Instantiate(playerObjectPrefab);
                 playerObjects.Add(i, playerObj);
             }
+
+            cameraMoveScript.target = playerObjects[ClientManager.Instance.playerSession.PlayerID].transform;
         });
     }
 
