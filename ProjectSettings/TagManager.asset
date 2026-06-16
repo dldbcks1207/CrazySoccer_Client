@@ -59,5 +59,8 @@ TagManager:
   - name: GoalPostFront
     uniqueID: 249012161
     locked: 0
+  - name: Logo
+    uniqueID: 1331875703
+    locked: 0
   m_RenderingLayers:
   - Default

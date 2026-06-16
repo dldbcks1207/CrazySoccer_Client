@@ -108,3 +108,6 @@ InitTestScene*.unity*
 # Ignore mklink
 /[Aa]ssets/CrazySoccer/Scripts/SharedNetwork.meta
 /[Aa]ssets/CrazySoccer/Scripts/SharedNetwork/
+
+# Ignore DoTweenPro
+/[Aa]ssets/Plugins/Demigiant/
