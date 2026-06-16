@@ -23,8 +23,7 @@ public class ClientManager : MonoBehaviour
     {
         packetHandlers.Add(PacketType.SendSession, HandleSessionPacket);
         packetHandlers.Add(PacketType.NewSessionConnect, GameManager.Instance.HandleNewSessionConnect);
-        packetHandlers.Add(PacketType.SyncPlayerPosition, GameManager.Instance.HandleSyncPosition);
-        packetHandlers.Add(PacketType.SyncBallPosition, GameManager.Instance.HandleSyncBall);
+        packetHandlers.Add(PacketType.SyncWorld, GameManager.Instance.HandleSyncWorld);
         packetHandlers.Add(PacketType.GoalEvent, GameManager.Instance.HandleGoalEvent);
         
         playerSession.Client = new TcpClient();
