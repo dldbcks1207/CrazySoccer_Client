@@ -2,15 +2,16 @@ using UnityEngine;
 
 public class SoccerBallObject : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    public Vector2 targetPosition;
+    [SerializeField] private float lerpSpeed = 15f;
+    [SerializeField] private float ballRotationSpeed = 200f;
 
-    // Update is called once per frame
     void Update()
     {
-        
+        Vector3 prevPos = transform.position;
+        transform.position = Vector2.Lerp(transform.position, targetPosition, Time.deltaTime * lerpSpeed);
+        float moveDeltaX = transform.position.x - prevPos.x;
+        float rotationAmount = moveDeltaX * ballRotationSpeed;
+        transform.Rotate(Vector3.forward, -rotationAmount);
     }
 }

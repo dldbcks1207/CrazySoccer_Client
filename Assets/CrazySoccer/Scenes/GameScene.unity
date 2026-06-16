@@ -1054,6 +1054,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b93fb6b4aa78fa74eae77e508ac5fd36, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SoccerBallObject
+  targetPosition: {x: 0, y: 0}
+  lerpSpeed: 15
+  ballRotationSpeed: 200
 --- !u!1 &1284687769
 GameObject:
   m_ObjectHideFlags: 0
@@ -1602,6 +1605,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameMaanger
   playerObjectPrefab: {fileID: 4805063925223132081, guid: 296f48fc04d743e4cb06f763b4ae8caa, type: 3}
   soccerBall: {fileID: 1272106991}
+  leftScoreText: {fileID: 1428247685}
+  rightScoreText: {fileID: 1428247685}
 --- !u!1 &1744493546
 GameObject:
   m_ObjectHideFlags: 0

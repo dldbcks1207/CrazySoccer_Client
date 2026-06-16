@@ -10,7 +10,7 @@ public class ClientManager : MonoBehaviour
     static public ClientManager Instance;
     public PlayerSession playerSession = new PlayerSession();
     public NetworkStream networkStream;
-    
+
     private Dictionary<PacketType, Action<BinaryReader>> packetHandlers = new Dictionary<PacketType, Action<BinaryReader>>();
     public ConcurrentQueue<Action> mainThreadQueue = new ConcurrentQueue<Action>();
 
@@ -22,9 +22,11 @@ public class ClientManager : MonoBehaviour
     private void Start()
     {
         packetHandlers.Add(PacketType.SendSession, HandleSessionPacket);
-        packetHandlers.Add(PacketType.NewSessionConnect, GameMaanger.Instance.HandleNewSessionConnect);
-        packetHandlers.Add(PacketType.SyncPlayerPosition, GameMaanger.Instance.HandleSyncPosition);
-
+        packetHandlers.Add(PacketType.NewSessionConnect, GameManager.Instance.HandleNewSessionConnect);
+        packetHandlers.Add(PacketType.SyncPlayerPosition, GameManager.Instance.HandleSyncPosition);
+        packetHandlers.Add(PacketType.SyncBallPosition, GameManager.Instance.HandleSyncBall);
+        packetHandlers.Add(PacketType.GoalEvent, GameManager.Instance.HandleGoalEvent);
+        
         playerSession.Client = new TcpClient();
         Debug.Log("Try Server Connect..");
         playerSession.Client.BeginConnect("127.0.0.1", NetworkConfig.ServerPort, (ar) =>
@@ -52,6 +54,14 @@ public class ClientManager : MonoBehaviour
             int bytesRead = networkStream.EndRead(ar);
             if (bytesRead == 0) return;
 
+            int totalRead = bytesRead;
+            while (totalRead < NetworkConfig.HeaderSize)
+            {
+                int read = networkStream.Read(headerBuffer, totalRead, NetworkConfig.HeaderSize - totalRead);
+                if (read == 0) return;
+                totalRead += read;
+            }
+
             short packetSize = BitConverter.ToInt16(headerBuffer, 0);
             PacketType packetType = (PacketType)BitConverter.ToInt16(headerBuffer, 2);
 
@@ -71,6 +81,14 @@ public class ClientManager : MonoBehaviour
 
             int bytesRead = networkStream.EndRead(ar);
             if (bytesRead == 0) return;
+
+            int totalRead = bytesRead;
+            while (totalRead < bodyBuffer.Length)
+            {
+                int read = networkStream.Read(bodyBuffer, totalRead, bodyBuffer.Length - totalRead);
+                if (read == 0) return;
+                totalRead += read;
+            }
 
             using (MemoryStream ms = new MemoryStream(bodyBuffer))
             using (BinaryReader br = new BinaryReader(ms))
@@ -93,7 +111,7 @@ public class ClientManager : MonoBehaviour
         ushort playerNum = br.ReadUInt16();
         playerSession.SessionID = sessionid;
         playerSession.PlayerID = playerid;
-        GameMaanger.Instance.InitializeSession(playerNum);
+        GameManager.Instance.InitializeSession(playerNum);
     }
 
     void Update()

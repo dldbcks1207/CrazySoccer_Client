@@ -2,16 +2,22 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using UnityEngine;
+using TMPro;
 
-public class GameMaanger : MonoBehaviour
+public class GameManager : MonoBehaviour
 {
-    public static GameMaanger Instance;
+    public static GameManager Instance;
     public PlayerObject playerObjectPrefab;
 
     [SerializeField] private SoccerBallObject soccerBall;
     Dictionary<ushort, PlayerObject> playerObjects = new Dictionary<ushort, PlayerObject>();
     private InputSystem_Actions inputActions;
     private float lastSentHorizontal = 0f;
+
+    public TextMeshProUGUI leftScoreText; 
+    public TextMeshProUGUI rightScoreText; 
+    private int score1P = 0;
+    private int score2P = 0;
 
     private void Awake()
     {
@@ -60,6 +66,49 @@ public class GameMaanger : MonoBehaviour
             if (playerObjects.TryGetValue(playerID, out PlayerObject obj))
             {
                 obj.playerTargetPosition = new Vector2(playerX, playerY);
+            }
+        });
+    }
+    
+    public void HandleSyncBall(BinaryReader br)
+    {
+        float ballX = br.ReadSingle();
+        float ballY = br.ReadSingle();
+
+        ClientManager.Instance.mainThreadQueue.Enqueue(() =>
+        {
+            if (soccerBall != null)
+            {
+                soccerBall.targetPosition = new Vector2(ballX, ballY);
+            }
+        });
+    }
+
+    public void HandleGoalEvent(BinaryReader br)
+    {
+        short scoredTeam = br.ReadInt16();
+
+        ClientManager.Instance.mainThreadQueue.Enqueue(() =>
+        {
+            Debug.Log($"Goal in! ScoredTeam:{scoredTeam}");
+
+            if (scoredTeam == 1)
+            {
+                score1P++;
+                if (leftScoreText != null) leftScoreText.text = score1P.ToString();
+            }
+            else if (scoredTeam == 2)
+            {
+                score2P++;
+                if (rightScoreText != null) rightScoreText.text = score2P.ToString();
+            }
+
+    
+            if (soccerBall != null) soccerBall.targetPosition = Vector2.zero;
+            
+            foreach (KeyValuePair<ushort, PlayerObject> item in playerObjects)
+            {
+                item.Value.playerTargetPosition = (item.Key == 1) ? new Vector2(-5f, 0f) : new Vector2(5f, 0f);
             }
         });
     }
