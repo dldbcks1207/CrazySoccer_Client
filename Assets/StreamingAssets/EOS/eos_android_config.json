@@ -1,0 +1,36 @@
+{
+  "GoogleLoginClientID": null,
+  "GoogleLoginNonce": null,
+  "deployment": {
+    "SandboxId": {
+      "Value": "79226d5b00834a69a8c11761a02dd3c5"
+    },
+    "DeploymentId": "45f59a4b666045a885c222864c03fc29"
+  },
+  "clientCredentials": {
+    "ClientId": "CrazySoccer_Client",
+    "ClientSecret": "gYQKpGxxyDxHaWKxBOZymxe5rJqpXVhek05rsCKfuww",
+    "EncryptionKey": "465B168E065099A83549B1A49CA7C232F41ADA5B5C8A931D26FC469CB28B7AA1"
+  },
+  "isServer": false,
+  "platformOptionsFlags": "None",
+  "authScopeOptionsFlags": "NoFlags",
+  "integratedPlatformManagementFlags": 0,
+  "tickBudgetInMilliseconds": 0,
+  "taskNetworkTimeoutSeconds": 0.0,
+  "threadAffinity": {
+    "NetworkWork": 0,
+    "StorageIo": 0,
+    "WebSocketIo": 0,
+    "P2PIo": 0,
+    "HttpRequestIo": 0,
+    "RTCIo": 0,
+    "EmbeddedOverlayMainThread": 0,
+    "EmbeddedOverlayWorkerThreads": 0
+  },
+  "alwaysSendInputToOverlay": false,
+  "initialButtonDelayForOverlay": 0.0,
+  "repeatButtonDelayForOverlay": 0.0,
+  "toggleFriendsButtonCombination": "SpecialLeft",
+  "schemaVersion": "1.0"
+}

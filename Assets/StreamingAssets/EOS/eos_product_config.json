@@ -1,0 +1,38 @@
+{
+  "ProductName": "CrazySoccer",
+  "ProductId": "14bf9c2c8bac464a9eb055e8af66c17c",
+  "ProductVersion": "1.0",
+  "imported": true,
+  "Clients": [
+    {
+      "Value": {
+        "ClientId": "xyza7891XXD55ipjdDRgkPmVgETbOL02",
+        "ClientSecret": "gYQKpGxxyDxHaWKxBOZymxe5rJqpXVhek05rsCKfuww",
+        "EncryptionKey": "3143AA5A321D5742FE25D109A38323C1635C6B69C479B04488B52F3866ACB008"
+      },
+      "Name": "Client"
+    }
+  ],
+  "Environments": {
+    "Deployments": [
+      {
+        "Value": {
+          "SandboxId": {
+            "Value": "79226d5b00834a69a8c11761a02dd3c5"
+          },
+          "DeploymentId": "45f59a4b666045a885c222864c03fc29"
+        },
+        "Name": "Deployment"
+      }
+    ],
+    "Sandboxes": [
+      {
+        "Value": {
+          "Value": "79226d5b00834a69a8c11761a02dd3c5"
+        },
+        "Name": "Sandbox"
+      }
+    ]
+  },
+  "schemaVersion": "1.0"
+}

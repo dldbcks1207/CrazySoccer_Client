@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 15f190f138405bc4481037088c45990d
+guid: 830042d960484ff4394f2419317ae37a
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1404028623067837608
-    second: Logo_0
+      213: -1877022953696077402
+    second: ScoreBoardName_L_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Logo_0
+      name: ScoreBoardName_L_0
       rect:
         serializedVersion: 2
-        x: 73
-        y: 23
-        width: 455
-        height: 275
+        x: 10
+        y: 146
+        width: 402
+        height: 112
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 8a47074089c1c7310800000000000000
-      internalID: 1404028623067837608
+      spriteID: 6a9d0b9819973f5e0800000000000000
+      internalID: -1877022953696077402
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Logo_0: 1404028623067837608
+      ScoreBoardName_L_0: -1877022953696077402
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

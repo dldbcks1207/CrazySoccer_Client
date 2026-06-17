@@ -127,6 +127,11 @@ public class GameManager : MonoBehaviour
         });
     }
 
+    public bool GetPlayerDirection()
+    {
+        return playerObjects[ClientManager.Instance.playerSession.PlayerID].transform.localScale.x < 0f;
+    }
+
     private void Update()
     {
         if (ClientManager.Instance.networkStream == null) return;
@@ -156,6 +161,8 @@ public class GameManager : MonoBehaviour
                 KickPacket kickPacket = new KickPacket();
                 kickPacket.Force = lockedGaugeValue;
                 kickPacket.IsDriven = true;
+                kickPacket.IsDirectionLeft = GetPlayerDirection();
+
                 byte[] packetBytes = kickPacket.Serialize();
                 ClientManager.Instance.networkStream.Write(packetBytes, 0, packetBytes.Length);
 
@@ -168,6 +175,8 @@ public class GameManager : MonoBehaviour
                 KickPacket kickPacket = new KickPacket();
                 kickPacket.Force = lockedGaugeValue;
                 kickPacket.IsDriven = false;
+                kickPacket.IsDirectionLeft = GetPlayerDirection();
+
                 byte[] packetBytes = kickPacket.Serialize();
                 ClientManager.Instance.networkStream.Write(packetBytes, 0, packetBytes.Length);
                 Debug.Log($"Normal Shoot : {lockedGaugeValue}");
@@ -189,6 +198,8 @@ public class GameManager : MonoBehaviour
                         KickPacket kickPacket = new KickPacket();
                         kickPacket.Force = value;
                         kickPacket.IsDriven = false;
+                        kickPacket.IsDirectionLeft = GetPlayerDirection();
+
                         byte[] packetBytes = kickPacket.Serialize();
                         ClientManager.Instance.networkStream.Write(packetBytes, 0, packetBytes.Length);
                         Debug.Log($"Max Power Shoot : {value}");
@@ -210,11 +221,5 @@ public class GameManager : MonoBehaviour
             }
         }
         // ~
-
-        /*
-        KickPacket kickPacket = new KickPacket();
-        byte[] packetBytes = kickPacket.Serialize();
-        ClientManager.Instance.networkStream.Write(packetBytes, 0, packetBytes.Length);
-        */
     }
 }
