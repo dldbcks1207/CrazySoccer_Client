@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Net.Sockets;
 using UnityEngine;
 using TMPro;
 
@@ -10,6 +9,8 @@ public class GameManager : MonoBehaviour
     public PlayerObject playerObjectPrefab;
     [SerializeField] private CameraMoveScript cameraMoveScript;
     [SerializeField] private SoccerBallObject soccerBall;
+    [SerializeField] private ShootGaugeObject shootGaugeObjectPrefab;
+
     Dictionary<ushort, PlayerObject> playerObjects = new Dictionary<ushort, PlayerObject>();
     private InputSystem_Actions inputActions;
     private float lastSentHorizontal = 0f;
@@ -18,6 +19,13 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI rightScoreText;
     private int score1P = 0;
     private int score2P = 0;
+
+    private bool isShooting = false;
+    private ShootGaugeObject shootGaugeObj;
+    private float shootDelay = 0.1f;
+    private bool isWaitingForDriven = false;
+    private float drivenTimer = 0f;
+    private byte lockedGaugeValue = 0;
 
     private void Awake()
     {
@@ -138,11 +146,75 @@ public class GameManager : MonoBehaviour
             lastSentHorizontal = currentHorizontal;
         }
 
-        if (inputActions.Player.Kick.WasPressedThisFrame())
+        // 슛관련
+        if (isWaitingForDriven)
         {
-            KickPacket kickPacket = new KickPacket();
-            byte[] packetBytes = kickPacket.Serialize();
-            ClientManager.Instance.networkStream.Write(packetBytes, 0, packetBytes.Length);
+            drivenTimer -= Time.deltaTime;
+
+            if (inputActions.Player.Kick.WasPressedThisFrame())
+            {
+                KickPacket kickPacket = new KickPacket();
+                kickPacket.Force = lockedGaugeValue;
+                kickPacket.IsDriven = true;
+                byte[] packetBytes = kickPacket.Serialize();
+                ClientManager.Instance.networkStream.Write(packetBytes, 0, packetBytes.Length);
+
+                Debug.Log($"Driven Shoot : {lockedGaugeValue}");
+                isWaitingForDriven = false;
+            }
+
+            else if (drivenTimer <= 0f)
+            {
+                KickPacket kickPacket = new KickPacket();
+                kickPacket.Force = lockedGaugeValue;
+                kickPacket.IsDriven = false;
+                byte[] packetBytes = kickPacket.Serialize();
+                ClientManager.Instance.networkStream.Write(packetBytes, 0, packetBytes.Length);
+                Debug.Log($"Normal Shoot : {lockedGaugeValue}");
+                isWaitingForDriven = false;
+            }
         }
+        else
+        {
+            if (inputActions.Player.Kick.WasPressedThisFrame())
+            {
+                if (!isShooting)
+                {
+                    isShooting = true;
+                    shootGaugeObj = Instantiate(shootGaugeObjectPrefab);
+                    shootGaugeObj.followTarget = playerObjects[ClientManager.Instance.playerSession.PlayerID].transform;
+
+                    shootGaugeObj.StartGauge((value) =>
+                    {
+                        KickPacket kickPacket = new KickPacket();
+                        kickPacket.Force = value;
+                        kickPacket.IsDriven = false;
+                        byte[] packetBytes = kickPacket.Serialize();
+                        ClientManager.Instance.networkStream.Write(packetBytes, 0, packetBytes.Length);
+                        Debug.Log($"Max Power Shoot : {value}");
+                        isShooting = false;
+                    });
+                }
+            }
+
+            else if (inputActions.Player.Kick.WasReleasedThisFrame())
+            {
+                if (isShooting && shootGaugeObj != null)
+                {
+                    lockedGaugeValue = shootGaugeObj.StopGauge();
+                    isShooting = false;
+
+                    isWaitingForDriven = true;
+                    drivenTimer = shootDelay;
+                }
+            }
+        }
+        // ~
+
+        /*
+        KickPacket kickPacket = new KickPacket();
+        byte[] packetBytes = kickPacket.Serialize();
+        ClientManager.Instance.networkStream.Write(packetBytes, 0, packetBytes.Length);
+        */
     }
 }
