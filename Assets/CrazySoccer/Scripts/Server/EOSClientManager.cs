@@ -3,8 +3,18 @@ using PlayEveryWare.EpicOnlineServices;
 using Epic.OnlineServices;
 using Epic.OnlineServices.Connect;
 
-public class EOSLoginManager : MonoBehaviour
+public class EOSClientManager : MonoBehaviour
 {
+    static public EOSClientManager Instance;
+
+    public string clientVersion = "v1.0";
+    public ProductUserId myUserId;
+
+    void Awake()
+    {
+        Instance = this;
+    }
+
     void Start()
     {
         Invoke("LoginWithDeviceID", 1.0f);
@@ -12,10 +22,10 @@ public class EOSLoginManager : MonoBehaviour
 
     private void LoginWithDeviceID()
     {
-        Debug.Log("Try Login");
+        Debug.Log("Try Login...");
 
         ConnectInterface connectInterface = EOSManager.Instance.GetEOSPlatformInterface().GetConnectInterface();
-        
+
         var createDeviceOptions = new CreateDeviceIdOptions { DeviceModel = "UnityEditor" };
 
         connectInterface.CreateDeviceId(ref createDeviceOptions, null, (ref CreateDeviceIdCallbackInfo createData) =>
@@ -26,7 +36,7 @@ public class EOSLoginManager : MonoBehaviour
             }
             else
             {
-                Debug.LogError($"디바이스 ID 생성 실패: {createData.ResultCode}");
+                Debug.LogError($"Failed Generate DeviceID : {createData.ResultCode}");
             }
         });
     }
@@ -37,12 +47,12 @@ public class EOSLoginManager : MonoBehaviour
         {
             Credentials = new Credentials
             {
-                Token = null, 
+                Token = null,
                 Type = ExternalCredentialType.DeviceidAccessToken
             },
 
-            UserLoginInfo = new UserLoginInfo 
-            { 
+            UserLoginInfo = new UserLoginInfo
+            {
                 DisplayName = $"Player {Random.Range(10000, 99999)}"
             }
         };
@@ -51,7 +61,8 @@ public class EOSLoginManager : MonoBehaviour
         {
             if (loginData.ResultCode == Result.Success)
             {
-                Debug.Log($"Login Success: {loginData.LocalUserId}");
+                Debug.Log($"Login Successed My ID : {loginData.LocalUserId}");
+                myUserId = loginData.LocalUserId;
             }
             else
             {
