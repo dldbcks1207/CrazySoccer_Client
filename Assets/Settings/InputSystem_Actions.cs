@@ -118,6 +118,24 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Ceremony1"",
+                    ""type"": ""Button"",
+                    ""id"": ""9fb1433a-18d5-463c-b568-e82d7455ce12"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Ceremony2"",
+                    ""type"": ""Button"",
+                    ""id"": ""ef0dfcde-e3d7-46de-a82d-f027c23ad4e1"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -261,6 +279,28 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
                     ""action"": ""Kick"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""6952095b-7699-4589-81f7-664325231ca8"",
+                    ""path"": ""<Keyboard>/z"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Ceremony1"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""58666650-c0f2-4d88-a897-9a174a7f02af"",
+                    ""path"": ""<Keyboard>/x"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Ceremony2"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -851,6 +891,8 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
         m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
         m_Player_Kick = m_Player.FindAction("Kick", throwIfNotFound: true);
+        m_Player_Ceremony1 = m_Player.FindAction("Ceremony1", throwIfNotFound: true);
+        m_Player_Ceremony2 = m_Player.FindAction("Ceremony2", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -947,6 +989,8 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Move;
     private readonly InputAction m_Player_Jump;
     private readonly InputAction m_Player_Kick;
+    private readonly InputAction m_Player_Ceremony1;
+    private readonly InputAction m_Player_Ceremony2;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -970,6 +1014,14 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/Kick".
         /// </summary>
         public InputAction @Kick => m_Wrapper.m_Player_Kick;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Ceremony1".
+        /// </summary>
+        public InputAction @Ceremony1 => m_Wrapper.m_Player_Ceremony1;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Ceremony2".
+        /// </summary>
+        public InputAction @Ceremony2 => m_Wrapper.m_Player_Ceremony2;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1005,6 +1057,12 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Kick.started += instance.OnKick;
             @Kick.performed += instance.OnKick;
             @Kick.canceled += instance.OnKick;
+            @Ceremony1.started += instance.OnCeremony1;
+            @Ceremony1.performed += instance.OnCeremony1;
+            @Ceremony1.canceled += instance.OnCeremony1;
+            @Ceremony2.started += instance.OnCeremony2;
+            @Ceremony2.performed += instance.OnCeremony2;
+            @Ceremony2.canceled += instance.OnCeremony2;
         }
 
         /// <summary>
@@ -1025,6 +1083,12 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Kick.started -= instance.OnKick;
             @Kick.performed -= instance.OnKick;
             @Kick.canceled -= instance.OnKick;
+            @Ceremony1.started -= instance.OnCeremony1;
+            @Ceremony1.performed -= instance.OnCeremony1;
+            @Ceremony1.canceled -= instance.OnCeremony1;
+            @Ceremony2.started -= instance.OnCeremony2;
+            @Ceremony2.performed -= instance.OnCeremony2;
+            @Ceremony2.canceled -= instance.OnCeremony2;
         }
 
         /// <summary>
@@ -1346,6 +1410,20 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnKick(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Ceremony1" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnCeremony1(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Ceremony2" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnCeremony2(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

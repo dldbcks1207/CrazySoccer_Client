@@ -25,7 +25,11 @@ public class ClientManager : MonoBehaviour
         packetHandlers.Add(PacketType.NewSessionConnect, GameManager.Instance.HandleNewSessionConnect);
         packetHandlers.Add(PacketType.SyncWorld, GameManager.Instance.HandleSyncWorld);
         packetHandlers.Add(PacketType.GoalEvent, GameManager.Instance.HandleGoalEvent);
-
+        packetHandlers.Add(PacketType.GameWait, GameManager.Instance.HandleGameWait);
+        packetHandlers.Add(PacketType.GameStart, GameManager.Instance.HandleGameStart);
+        packetHandlers.Add(PacketType.GameEnd, GameManager.Instance.HandleGameEnd);
+        packetHandlers.Add(PacketType.AnimationPacket, GameManager.Instance.HandleAnimationPacket);
+        
         playerSession.Client = new TcpClient();
     }
 
@@ -81,6 +85,7 @@ public class ClientManager : MonoBehaviour
             }
             else
             {
+                // ★ 바디가 없는 패킷(GameWait, GameStart 등)은 여기서 처리됩니다!
                 byte[] emptyBuffer = new byte[0];
                 using (MemoryStream ms = new MemoryStream(emptyBuffer))
                 using (BinaryReader br = new BinaryReader(ms))
@@ -88,6 +93,11 @@ public class ClientManager : MonoBehaviour
                     if (packetHandlers.TryGetValue(packetType, out var handler))
                     {
                         handler.Invoke(br);
+                    }
+                    else
+                    {
+                        // ★ 추가: 등록되지 않은 패킷이 오면 경고를 띄워줍니다.
+                        Debug.LogError($"[클라이언트] {packetType}은(는) 등록되지 않은 패킷입니다.");
                     }
                 }
                 ReceiveLoop();
@@ -121,6 +131,11 @@ public class ClientManager : MonoBehaviour
                 if (packetHandlers.TryGetValue(packetType, out var handler))
                 {
                     handler.Invoke(br);
+                }
+                else
+                {
+                    // ★ 추가: 등록되지 않은 패킷이 오면 경고를 띄워줍니다.
+                    Debug.LogError($"[클라이언트] {packetType}은(는) 등록되지 않은 패킷입니다.");
                 }
             }
 

@@ -6,6 +6,7 @@ using System;
 public class ShootGaugeObject : MonoBehaviour
 {
     private byte currentGauge = 0; // byte로 변경
+    public byte CurrentGauge => currentGauge;
     [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private Image gaugeImage;
     [SerializeField] private float fillSpeed = 100f;
