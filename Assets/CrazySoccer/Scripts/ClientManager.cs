@@ -27,13 +27,21 @@ public class ClientManager : MonoBehaviour
         packetHandlers.Add(PacketType.GoalEvent, GameManager.Instance.HandleGoalEvent);
 
         playerSession.Client = new TcpClient();
+    }
+
+    public void ConnectToServer(string serverIP, int serverPort)
+    {
         Debug.Log("Try Server Connect..");
-        playerSession.Client.BeginConnect("127.0.0.1", NetworkConfig.ServerPort, (ar) =>
+        playerSession.Client.BeginConnect(serverIP, serverPort, (ar) =>
         {
             playerSession.Client.EndConnect(ar);
             networkStream = playerSession.Client.GetStream();
             ReceiveLoop();
             Debug.Log("Server Coneected");
+            mainThreadQueue.Enqueue(() =>
+            {
+                TransitionManager.Instance.Transition(true);
+            });
         }, null);
     }
 

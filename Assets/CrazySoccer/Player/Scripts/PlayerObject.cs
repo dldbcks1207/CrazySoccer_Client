@@ -2,7 +2,8 @@ using UnityEngine;
 
 public class PlayerObject : MonoBehaviour
 {
-    [SerializeField] private float lerpSpeed = 15f;
+    [SerializeField] private float lerpSpeed = 7f; 
+    
     public Vector2 playerTargetPosition;
 
     [SerializeField] private Animator animator;
@@ -15,10 +16,20 @@ public class PlayerObject : MonoBehaviour
 
     private void Update()
     {
+        float distance = Vector2.Distance(transform.position, playerTargetPosition);
+
+        if (distance > 3f)
+        {
+            transform.position = playerTargetPosition;
+        }
+        else
+        {
+            transform.position = Vector2.Lerp(transform.position, playerTargetPosition, Time.deltaTime * lerpSpeed);
+        }
+
         float moveDeltaX = playerTargetPosition.x - transform.position.x;
-        transform.position = Vector2.Lerp(transform.position, playerTargetPosition, Time.deltaTime * lerpSpeed);
-        bool isMoving = Mathf.Abs(moveDeltaX) > 0.1f;
-        
+        bool isMoving = Mathf.Abs(moveDeltaX) > 0.15f; 
+
         if (animator != null)
         {
             animator.SetBool("isMove", isMoving);

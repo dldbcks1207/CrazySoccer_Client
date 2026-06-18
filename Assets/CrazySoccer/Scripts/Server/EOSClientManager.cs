@@ -63,6 +63,7 @@ public class EOSClientManager : MonoBehaviour
             {
                 Debug.Log($"Login Successed My ID : {loginData.LocalUserId}");
                 myUserId = loginData.LocalUserId;
+                MySceneManager.Instance.ChangeScene("LobbyScene");
             }
             else
             {
